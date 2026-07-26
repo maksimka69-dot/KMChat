@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f1a">
+<title>Кибершкола: Переводчик</title>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<style>
+:root {
+  --bg: #0a0a12;
+  --surface: rgba(30,30,45,0.7);
+  --surface-solid: #1e1e2d;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border: rgba(255,255,255,0.08);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 20%,rgba(99,102,241,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(34,197,94,0.05) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(245,158,11,0.03) 0%,transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  animation: fadeInUp 0.5s ease-out;
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pulse {
+  0%,100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+h2 .icon {
+  font-size: 1.3em;
+}
+p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+input,select,textarea {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 8px 0 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.3);
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  transition: all 0.2s;
+  outline: none;
+}
+input:focus,select:focus,textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+textarea {
+  resize: vertical;
+  min-height: 80px;
+  max-height: 200px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  min-height: 48px;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  background: linear-gradient(135deg,var(--primary),var(--primary-hover));
+  color: white;
+  box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+}
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(99,102,241,0.4);
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+}
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none!important;
+}
+.btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.btn-row .btn {
+  flex: 1;
+}
+.room-id-box {
+  background: rgba(99,102,241,0.1);
+  border: 2px dashed var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  text-align: center;
+  margin: 16px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.room-id-box:hover {
+  background: rgba(99,102,241,0.15);
+  transform: scale(1.02);
+}
+.room-id-box .id-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 8px;
+  font-family: 'Courier New',monospace;
+}
+.room-id-box .hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+.copied-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--success);
+  color: white;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.copied-badge.show {
+  opacity: 1;
+}
+.video-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+.video-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+.video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #000;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.video-label {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+.video-label .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+.video-off-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,#1a1a2e,#16213e);
+  font-size: 3rem;
+  z-index: 1;
+}
+.call-timer {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.call-timer .recording-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.section-header span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.translation-box {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-height: 80px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.translation-box::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--primary);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+.translation-box.theirs::before {
+  background: var(--success);
+}
+.translation-box.mine::before {
+  background: var(--warning);
+}
+.translation-box .placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+  opacity: 0.6;
+}
+.translation-box .interim {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.translation-box .original {
+  color: var(--text);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.translation-box .translated {
+  color: var(--success);
+  font-weight: 600;
+}
+.input-method {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  background: rgba(0,0,0,0.2);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+.input-method button {
+  flex: 1;
+  padding: 10px;
+  font-size: 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.input-method button.active {
+  background: rgba(99,102,241,0.2);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.mic-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  transition: all 0.3s;
+}
+.mic-indicator.active {
+  background: rgba(34,197,94,0.15);
+  color: var(--success);
+}
+.mic-indicator.active .mic-dot {
+  animation: pulse 1.5s infinite;
+}
+.mic-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.mic-selector-call {
+  width: auto!important;
+  margin: 0!important;
+  padding: 6px 10px!important;
+  font-size: 0.8rem!important;
+  max-width: 160px;
+  background: rgba(0,0,0,0.3);
+}
+.sound-visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 20px;
+}
+.sound-bar {
+  width: 3px;
+  background: var(--success);
+  border-radius: 2px;
+  transition: height 0.1s;
+}
+.control-bar {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-top: auto;
+  position: sticky;
+  bottom: 20px;
+}
+.control-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.control-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.05);
+}
+.control-btn:active {
+  transform: scale(0.95);
+}
+.control-btn.active {
+  background: var(--success);
+  color: white;
+}
+.control-btn.danger {
+  background: var(--danger);
+  color: white;
+}
+.control-btn.muted {
+  background: var(--warning);
+  color: white;
+}
+.control-btn.off {
+  background: var(--danger);
+  color: white;
+}
+.control-btn .tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.control-btn:hover .tooltip {
+  opacity: 1;
+}
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.status-bar.success {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.2);
+  color: var(--success);
+}
+.status-bar.error {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.2);
+  color: var(--danger);
+}
+.status-bar.warning {
+  background: rgba(245,158,11,0.08);
+  border-color: rgba(245,158,11,0.2);
+  color: var(--warning);
+}
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out;
+  pointer-events: all;
+  max-width: 320px;
+}
+.toast.hide {
+  animation: slideOut 0.3s ease-in forwards;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+.toast-icon {
+  font-size: 1.3rem;
+}
+.toast-content {
+  flex: 1;
+}
+.toast-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.toast-msg {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.hidden {
+  display: none!important;
+}
+.history-list {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 12px;
+  padding-right: 4px;
+}
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+.history-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+.history-item {
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  animation: fadeInUp 0.3s ease-out;
+}
+.history-item .time {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.history-item .hist-text {
+  color: var(--text);
+}
+.history-item .hist-trans {
+  color: var(--success);
+  font-weight: 500;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.toggle-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: rgba(0,0,0,0.3);
+  color: var(--text-secondary);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.toggle-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.toggle-btn.recording {
+  border-color: var(--danger);
+  background: rgba(239,68,68,0.1);
+  color: var(--danger);
+  animation: pulse 1.5s infinite;
+}
+.toggle-btn.recording .rec-dot {
+  background: var(--danger);
+  animation: pulse 1s infinite;
+}
+.rec-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition: all 0.3s;
+}
+@media (max-width:768px) {
+  .container {
+    padding: 12px;
+  }
+  .card {
+    padding: 20px;
+    border-radius: 14px;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  .video-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .video-container {
+    aspect-ratio: 16/10;
+  }
+  .video-container.remote {
+    position: fixed;
+    bottom: 100px;
+    right: 12px;
+    width: 140px;
+    height: 105px;
+    z-index: 50;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    aspect-ratio: auto;
+  }
+  .video-container.remote .video-label {
+    display: none;
+  }
+  .control-bar {
+    gap: 12px;
+    padding: 12px;
+    bottom: 12px;
+    border-radius: 14px;
+  }
+  .control-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  .btn {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  .room-id-box .id-number {
+    font-size: 2rem;
+  }
+  .translation-box {
+    font-size: 1rem;
+    padding: 12px;
+  }
+  .call-timer {
+    font-size: 0.8rem;
+    top: 8px;
+  }
+  .section-header {
+    gap: 6px;
+  }
+  .mic-selector-call {
+    max-width: 120px;
+    font-size: 0.75rem!important;
+  }
+  .toggle-btn {
+    padding: 14px;
+    font-size: 16px;
+  }
+}
+@media (max-width:480px) {
+  .card {
+    padding: 16px;
+  }
+  .btn-row {
+    flex-direction: column;
+  }
+  .input-method button {
+    font-size: 13px;
+    padding: 8px;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .video-container.remote {
+    width: 120px;
+    height: 90px;
+    bottom: 90px;
+  }
+  .control-btn {
+    width: 46px;
+    height: 46px;
+  }
+  .toggle-btn {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+@media (max-height:500px) and (orientation:landscape) {
+  .video-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .video-container {
+    aspect-ratio: 16/9;
+  }
+  .video-container.remote {
+    position: relative;
+    width: 100%;
+    height: auto;
+    bottom: auto;
+    right: auto;
+  }
+  .control-bar {
+    position: relative;
+    bottom: auto;
+    margin-top: 12px;
+  }
+}
+@supports (padding:max(0px)) {
+  .container {
+    padding-left: max(20px,env(safe-area-inset-left));
+    padding-right: max(20px,env(safe-area-inset-right));
+    padding-bottom: max(20px,env(safe-area-inset-bottom));
+  }
+  .control-bar {
+    bottom: max(20px,env(safe-area-inset-bottom));
+  }
+}
+</style>
+</head>
+<body>
+  <div class="toast-container" id="toast-container"></div>
+
+  <div class="container">
+    <div id="error-box" class="status-bar error hidden"></div>
+
+    <!-- ==================== ЭКРАН: ЛОББИ ==================== -->
+    <div id="screen-lobby" class="card">
+      <h2><span class="icon">🌐</span> Переводчик-переговорная</h2>
+      <p>Видеозвонок с автоматическим переводом речи в реальном времени.</p>
+
+      <label for="my-lang">Твой язык:</label>
+      <select id="my-lang">
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="en">🇺🇸 English</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="zh">🇨🇳 中文</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="tr">🇹🇷 Türkçe</option>
+        <option value="pl">🇵🇱 Polski</option>
+      </select>
+
+      <label for="mic-select">🎤 Микрофон:</label>
+      <select id="mic-select">
+        <option value="">🎤 Загрузка...</option>
+      </select>
+
+      <div class="btn-row">
+        <button id="btn-create" class="btn btn-primary">📹 Создать комнату</button>
+        <button id="btn-join" class="btn btn-secondary">🔑 Войти по ID</button>
+      </div>
+
+      <div id="join-input-block" class="hidden" style="margin-top: 12px">
+        <input type="text" id="room-id-input" placeholder="Введи 4 цифры ID" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+        <button id="btn-connect" class="btn btn-primary">Подключиться</button>
+      </div>
+    </div>
+
+    <!-- ==================== ЭКРАН: ЗВОНОК ==================== -->
+    <div id="screen-call" class="hidden">
+      <div class="status-bar" id="connection-status">⏳ Инициализация...</div>
+
+      <div id="host-id-display" class="room-id-box hidden">
+        <div class="id-number" id="display-room-id">0000</div>
+        <div class="hint">👆 Нажми, чтобы скопировать ID</div>
+        <div class="copied-badge" id="copied-badge">Скопировано!</div>
+      </div>
+
+      <!-- Видео -->
+      <div class="video-section">
+        <div class="call-timer hidden" id="call-timer">
+          <span class="recording-dot"></span>
+          <span id="timer-value">00:00</span>
+        </div>
+        <div class="video-grid" id="video-grid">
+          <div class="video-container" id="local-video-container">
+            <video id="local-video" autoplay muted playsinline></video>
+            <div class="video-label"><span class="dot"></span>Ты</div>
+            <div id="local-video-off" class="video-off-placeholder hidden">🎥</div>
+          </div>
+          <div class="video-container remote" id="remote-video-container">
+            <video id="remote-video" autoplay playsinline></video>
+            <div class="video-label"><span class="dot"></span>Собеседник</div>
+            <div id="remote-video-off" class="video-off-placeholder hidden">👤</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Твоя речь -->
+      <div class="card">
+        <div class="section-header">
+          <span>🎤 Твоя речь</span>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+            <select id="mic-select-call" class="mic-selector-call hidden">
+              <option value="">🎤 Микрофон...</option>
+            </select>
+            <span id="mic-indicator" class="mic-indicator">
+              <span class="mic-dot"></span>
+              <span id="mic-text">Выкл</span>
+            </span>
+          </div>
+        </div>
+
+        <div id="my-translation" class="translation-box mine">
+          <span class="placeholder">Нажмите кнопку ниже, чтобы начать говорить...</span>
+        </div>
+
+        <!-- Кнопка записи -->
+        <button id="btn-record-toggle" class="toggle-btn">
+          <span class="rec-dot"></span>
+          <span id="toggle-text">🎤 Начать запись</span>
+        </button>
+
+        <div class="input-method">
+          <button id="btn-voice" class="active"><span>🎤</span>Голос</button>
+          <button id="btn-text"><span>⌨️</span>Текст</button>
+        </div>
+        <textarea id="manual-input" class="hidden" placeholder="Напиши текст и нажми Enter..."></textarea>
+
+        <div id="my-history" class="hidden">
+          <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 12px; margin-bottom: 8px">История:</div>
+          <div class="history-list" id="my-history-list"></div>
+        </div>
+      </div>
+
+      <!-- Перевод собеседника -->
+      <div class="card">
+        <div class="section-header">
+          <span>💬 Собеседник (перевод)</span>
+          <div class="sound-visualizer" id="their-visualizer">
+            <div class="sound-bar" style="height: 4px"></div>
+            <div class="sound-bar" style="height: 4px"></div>
+            <div class="sound-bar" style="height: 4px"></div>
+            <div class="sound-bar" style="height: 4px"></div>
+            <div class="sound-bar" style="height: 4px"></div>
+          </div>
+        </div>
+
+        <div id="their-translation" class="translation-box theirs">
+          <span class="placeholder">Ожидание речи собеседника...</span>
+        </div>
+
+        <div id="their-history" class="hidden">
+          <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 12px; margin-bottom: 8px">История:</div>
+          <div class="history-list" id="their-history-list"></div>
+        </div>
+      </div>
+
+      <!-- Панель управления звонком -->
+      <div class="control-bar">
+        <button class="control-btn" id="btn-mute-audio" title="Микрофон">
+          <span id="icon-mic">🎤</span>
+          <span class="tooltip">Микрофон</span>
+        </button>
+        <button class="control-btn" id="btn-mute-video" title="Камера">
+          <span id="icon-cam">📹</span>
+          <span class="tooltip">Камера</span>
+        </button>
+        <button class="control-btn" id="btn-switch-cam" title="Переключить камеру">
+          <span>🔄</span>
+          <span class="tooltip">Камера</span>
+        </button>
+        <button class="control-btn danger" id="btn-end" title="Завершить">
+          <span>📞</span>
+          <span class="tooltip">Завершить</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ==================== CONFIG ====================
+const DEEPGRAM_API_KEY = '6b62f4a467a69628b2cea6486660ee5be5ee17c0';
+
+// ==================== STATE ====================
+let peer = null;
+let conn = null;
+let currentCall = null;
+let localStream = null;
+let remoteStream = null;
+let inputMode = 'voice';
+let callTimerInterval = null;
+let callStartTime = null;
+let myHistory = [];
+let theirHistory = [];
+let isAudioMuted = false;
+let isVideoMuted = false;
+let currentFacingMode = 'user';
+let clearTimers = {};
+let isHost = false;
+
+// Deepgram
+let dgWs = null;
+let dgAudioCtx = null;
+let dgWorkletNode = null;
+let dgMediaStream = null;
+let isRecording = false;
+let dgFinalBuffer = '';
+let workletBlobUrl = null;
+
+// ==================== DOM ====================
+const $ = id => document.getElementById(id);
+
+const myLangSelect = $('my-lang');
+const micSelect = $('mic-select');
+const micSelectCall = $('mic-select-call');
+const micIndicator = $('mic-indicator');
+const micText = $('mic-text');
+const manualInput = $('manual-input');
+const btnVoice = $('btn-voice');
+const btnText = $('btn-text');
+const btnRecordToggle = $('btn-record-toggle');
+const toggleText = $('toggle-text');
+const errorBox = $('error-box');
+const statusText = $('connection-status');
+const screenLobby = $('screen-lobby');
+const screenCall = $('screen-call');
+const joinInputBlock = $('join-input-block');
+const localVideo = $('local-video');
+const remoteVideo = $('remote-video');
+const hostIdDisplay = $('host-id-display');
+const displayRoomId = $('display-room-id');
+const copiedBadge = $('copied-badge');
+const callTimer = $('call-timer');
+const timerValue = $('timer-value');
+const localVideoOff = $('local-video-off');
+const remoteVideoOff = $('remote-video-off');
+const toastContainer = $('toast-container');
+
+// ==================== UTILITIES ====================
+function getMyLang() {
+    return myLangSelect.value;
+}
+
+function getTargetLang() {
+    return getMyLang() === 'ru' ? 'en' : 'ru';
+}
+
+function showToast(title, message, type = 'info') {
+    const icons = { info: 'ℹ️', success: '✅', error: '❌', warning: '⚠️' };
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type]}</span>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+function showError(msg) {
+    errorBox.innerText = msg;
+    errorBox.classList.remove('hidden');
+    console.error('[ERROR]', msg);
+    showToast('Ошибка', msg, 'error');
+}
+
+function clearError() {
+    errorBox.classList.add('hidden');
+}
+
+function setStatus(msg, type = 'normal') {
+    statusText.innerText = msg;
+    statusText.className = 'status-bar';
+    if (type === 'success') statusText.classList.add('success');
+    else if (type === 'error') statusText.classList.add('error');
+    else if (type === 'warning') statusText.classList.add('warning');
+}
+
+function formatTime(ms) {
+    const s = Math.floor(ms / 1000);
+    return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function startCallTimer() {
+    callStartTime = Date.now();
+    callTimer.classList.remove('hidden');
+    callTimerInterval = setInterval(() => {
+        timerValue.innerText = formatTime(Date.now() - callStartTime);
+    }, 1000);
+}
+
+function stopCallTimer() {
+    clearInterval(callTimerInterval);
+    callTimer.classList.add('hidden');
+}
+
+function escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+}
+
+// ==================== MIC LIST ====================
+async function populateMicList() {
+    try {
+        const temp = await navigator.mediaDevices.getUserMedia({ audio: true });
+        temp.getTracks().forEach(t => t.stop());
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const mics = devices.filter(d => d.kind === 'audioinput');
+
+        [micSelect, micSelectCall].forEach(sel => {
+            if (!sel) return;
+            const saved = sel.value || localStorage.getItem('preferredMic');
+            sel.innerHTML = '<option value="">🎤 По умолчанию</option>';
+            mics.forEach((m, i) => {
+                const o = document.createElement('option');
+                o.value = m.deviceId;
+                o.textContent = m.label || `Микрофон ${i + 1}`;
+                sel.appendChild(o);
+            });
+            if (saved) sel.value = saved;
+        });
+    } catch (e) {
+        micSelect.innerHTML = '<option value="">🎤 Нет доступа</option>';
+    }
+}
+populateMicList();
+
+micSelect.addEventListener('change', e => {
+    if (e.target.value) localStorage.setItem('preferredMic', e.target.value);
+    else localStorage.removeItem('preferredMic');
+});
+
+// ==================== TRANSLATION DISPLAY ====================
+function showMyText(original, translated) {
+    clearTimeout(clearTimers.my);
+    const box = $('my-translation');
+    if (translated) {
+        box.innerHTML = `<div class="original">${escapeHtml(original)}</div><div class="translated">${escapeHtml(translated)}</div>`;
+        addToHistory('my', original, translated);
+    } else {
+        box.innerHTML = `<div class="original">${escapeHtml(original)}</div>`;
+    }
+    clearTimers.my = setTimeout(() => {
+        box.innerHTML = '<span class="placeholder">Нажмите 🎤, чтобы начать говорить...</span>';
+    }, 20000);
+}
+
+function showTheirText(translated, original) {
+    clearTimeout(clearTimers.their);
+    const box = $('their-translation');
+    box.innerHTML = `<div class="translated">${escapeHtml(translated)}</div>${
+        original ? `<div style="color: var(--text-secondary); font-size: 0.9em; margin-top: 6px; font-style: italic">Оригинал: ${escapeHtml(original)}</div>` : ''
+    }`;
+    addToHistory('their', original || translated, translated);
+    clearTimers.their = setTimeout(() => {
+        box.innerHTML = '<span class="placeholder">Ожидание речи собеседника...</span>';
+    }, 20000);
+}
+
+function showInterim(text) {
+    clearTimeout(clearTimers.my);
+    $('my-translation').innerHTML = `<span class="interim">${escapeHtml(text)}</span>`;
+}
+
+function addToHistory(who, original, translated) {
+    const list = who === 'my' ? $('my-history-list') : $('their-history-list');
+    const container = who === 'my' ? $('my-history') : $('their-history');
+    const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `<div class="time">${time}</div><div class="hist-text">${escapeHtml(original)}</div><div class="hist-trans">${escapeHtml(translated)}</div>`;
+
+    list.insertBefore(item, list.firstChild);
+    container.classList.remove('hidden');
+    while (list.children.length > 10) list.removeChild(list.lastChild);
+}
+
+// ==================== INPUT MODE ====================
+btnVoice.addEventListener('click', () => {
+    inputMode = 'voice';
+    btnVoice.classList.add('active');
+    btnText.classList.remove('active');
+    manualInput.classList.add('hidden');
+    btnRecordToggle.classList.remove('hidden');
+    if (isRecording) stopDeepgram();
+});
+
+btnText.addEventListener('click', () => {
+    inputMode = 'text';
+    btnText.classList.add('active');
+    btnVoice.classList.remove('active');
+    manualInput.classList.remove('hidden');
+    btnRecordToggle.classList.add('hidden');
+    if (isRecording) stopDeepgram();
+    micText.innerText = 'Выкл';
+    micIndicator.classList.remove('active');
+    manualInput.focus();
+});
+
+manualInput.addEventListener('keypress', async e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const text = manualInput.value.trim();
+        if (!text) return;
+
+        if (conn?.open) {
+            showMyText(text, null);
+            const tr = await translateText(text, getMyLang(), getTargetLang());
+            showMyText(text, tr);
+            conn.send({ text: tr, original: text });
+            manualInput.value = '';
+        } else {
+            showError('Соединение не установлено.');
+        }
+    }
+});
+
+// ==================== TOGGLE RECORDING ====================
+btnRecordToggle.addEventListener('click', () => {
+    if (isRecording) stopDeepgram();
+    else startDeepgram();
+});
+
+// ==================== MEDIA CONTROLS ====================
+$('btn-mute-audio').addEventListener('click', () => {
+    if (!localStream) return;
+    const tracks = localStream.getAudioTracks();
+    if (!tracks.length) return;
+    isAudioMuted = !isAudioMuted;
+    tracks.forEach(t => t.enabled = !isAudioMuted);
+    $('icon-mic').innerText = isAudioMuted ? '🔇' : '🎤';
+    $('btn-mute-audio').classList.toggle('muted', isAudioMuted);
+    showToast('Микрофон', isAudioMuted ? 'Off' : 'On', 'info');
+});
+
+$('btn-mute-video').addEventListener('click', () => {
+    if (!localStream) return;
+    const tracks = localStream.getVideoTracks();
+    if (!tracks.length) return;
+    isVideoMuted = !isVideoMuted;
+    tracks.forEach(t => t.enabled = !isVideoMuted);
+    $('icon-cam').innerText = isVideoMuted ? '🚫' : '📹';
+    $('btn-mute-video').classList.toggle('off', isVideoMuted);
+    localVideoOff.classList.toggle('hidden', !isVideoMuted);
+    showToast('Камера', isVideoMuted ? 'Off' : 'On', 'info');
+});
+
+$('btn-switch-cam').addEventListener('click', async () => {
+    if (!localStream) return;
+    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+    try {
+        const ns = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: false });
+        const nt = ns.getVideoTracks()[0];
+        const ot = localStream.getVideoTracks()[0];
+        if (ot) { localStream.removeTrack(ot); ot.stop(); }
+        localStream.addTrack(nt);
+        localVideo.srcObject = localStream;
+        if (currentCall?.peerConnection) {
+            const s = currentCall.peerConnection.getSenders().find(s => s.track?.kind === 'video');
+            if (s) s.replaceTrack(nt);
+        }
+        showToast('Камера', 'Переключена', 'success');
+    } catch (e) {
+        showError('Камера: ' + e.message);
+    }
+});
+
+// ==================== LOBBY ACTIONS ====================
+$('btn-create').addEventListener('click', async () => {
+    clearError();
+    const roomId = Math.floor(1000 + Math.random() * 9000).toString();
+    await initPeer(roomId, true);
+});
+
+$('btn-join').addEventListener('click', () => {
+    joinInputBlock.classList.remove('hidden');
+    $('room-id-input').focus();
+});
+
+$('btn-connect').addEventListener('click', async () => {
+    clearError();
+    const roomId = $('room-id-input').value.trim();
+    if (!/^\d{4}$/.test(roomId)) return showError('ИД должен быть из 4 цифр!');
+    await initPeer(null, false, roomId);
+});
+
+$('room-id-input').addEventListener('keypress', e => {
+    if (e.key === 'Enter') $('btn-connect').click();
+});
+
+hostIdDisplay.addEventListener('click', () => {
+    const id = displayRoomId.innerText;
+    navigator.clipboard.writeText(id)
+        .then(() => {
+            copiedBadge.classList.add('show');
+            showToast('Скопировано', `ИД ${id}`, 'success');
+            setTimeout(() => copiedBadge.classList.remove('show'), 2000);
+        })
+        .catch(() => {
+            const t = document.createElement('textarea');
+            t.value = id;
+            document.body.appendChild(t);
+            t.select();
+            document.execCommand('copy');
+            document.body.removeChild(t);
+            copiedBadge.classList.add('show');
+            setTimeout(() => copiedBadge.classList.remove('show'), 2000);
+        });
+});
+
+// ==================== PEER INITIALIZATION ====================
+async function initPeer(myId, host, targetId = null) {
+    isHost = host;
+    setStatus('🔄 Запрашиваем доступ...');
+
+    try {
+        const micId = micSelect.value || localStorage.getItem('preferredMic');
+        const ac = { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: { ideal: 16000 } };
+        if (micId) ac.deviceId = { exact: micId };
+
+        localStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: ac
+        });
+        console.log(`[MEDIA] Audio: ${localStream.getAudioTracks().length}, Video: ${localStream.getVideoTracks().length}`);
+        localVideo.srcObject = localStream;
+    } catch (e) {
+        console.error('[MEDIA]', e);
+        return showError('Нет доступа к камере/микрофону. HTTPS?');
+    }
+
+    setStatus('🔄 PeerJS...');
+    peer = myId ? new Peer(myId, { debug: 2 }) : new Peer({ debug: 2 });
+
+    try {
+        const peerId = await new Promise((resolve, reject) => {
+            peer.on('open', resolve);
+            peer.on('error', err => {
+                const msgs = {
+                    'unavailable-id': 'ИД занят',
+                    'peer-unavailable': 'Комната не найдена',
+                    'network': 'Проблема с сетью',
+                    'browser-incompatible': 'Браузер не поддерживает',
+                    'server-error': 'Ошибка сервера',
+                    'socket-error': 'Ошибка соединения'
+                };
+                showError(msgs[err.type] || err.type);
+                reject(err);
+            });
+        });
+
+        screenLobby.classList.add('hidden');
+        screenCall.classList.remove('hidden');
+        micSelectCall.classList.remove('hidden');
+        populateMicList();
+
+        if (host) {
+            displayRoomId.innerText = peerId;
+            hostIdDisplay.classList.remove('hidden');
+            setStatus(`✅ Комната ${peerId}. Ждем...`, 'success');
+            showToast('Комната', `ИД: ${peerId}`, 'success');
+        } else {
+            setStatus(`🔄 К ${targetId}...`);
+        }
+
+        peer.on('connection', setupDataConnection);
+
+        peer.on('call', call => {
+            currentCall = call;
+            call.answer(localStream);
+            call.on('stream', s => {
+                remoteStream = s;
+                remoteVideo.srcObject = s;
+                remoteVideoOff.classList.add('hidden');
+                setStatus('✅ Собеседник!', 'success');
+                showToast('Подключение', 'Собеседник присоединился', 'success');
+                if (!callStartTime) startCallTimer();
+            });
+            call.on('close', () => {
+                currentCall = null;
+                remoteVideoOff.classList.remove('hidden');
+            });
+            call.on('error', e => console.error('[CALL]', e));
+        });
+
+        if (!host) {
+            const dc = peer.connect(targetId, { reliable: true, serialization: 'json' });
+            dc.on('open', () => setupDataConnection(dc));
+            dc.on('error', e => showError('Ошибка соединения'));
+
+            setTimeout(() => {
+                const c = peer.call(targetId, localStream);
+                if (!c) return showError('Не удалось позвонить');
+                currentCall = c;
+                c.on('stream', s => {
+                    remoteStream = s;
+                    remoteVideo.srcObject = s;
+                    remoteVideoOff.classList.add('hidden');
+                    setStatus('✅ Подключено!', 'success');
+                    showToast('Успех', 'Вы подключены', 'success');
+                    startCallTimer();
+                });
+                c.on('close', () => {
+                    currentCall = null;
+                    remoteVideoOff.classList.remove('hidden');
+                });
+                c.on('error', e => showError('Звонок: ' + e.message));
+            }, 800);
+        }
+
+        micText.innerText = 'Выкл';
+        toggleText.innerText = '🎤 Начать запись';
+    } catch (e) {
+        console.error('[INIT]', e);
+    }
+}
+
+function setupDataConnection(c) {
+    conn = c;
+    c.on('open', () => {
+        if (isHost) {
+            setStatus('✅ Собеседник!', 'success');
+            showToast('Подключение', 'Собеседник вошел', 'success');
+            if (!callStartTime) startCallTimer();
+        }
+    });
+    c.on('data', d => {
+        if (d.text) showTheirText(d.text, d.original);
+    });
+    c.on('close', () => {
+        conn = null;
+        setStatus('⚠️ Отключен', 'warning');
+        showToast('Отключение', 'Собеседник вышел', 'warning');
+    });
+    c.on('error', e => console.error('[DATA]', e));
+}
+
+// ==================== DEEPGRAM ====================
+const AUDIO_WORKLET_CODE = `
+class PCMProcessor extends AudioWorkletProcessor {
+    constructor() {
+        super();
+        this.buffer = new Int16Array(2048);
+        this.idx = 0;
+    }
+    process(inputs) {
+        const ch = inputs[0];
+        if (!ch || !ch[0]) return true;
+        const d = ch[0];
+        for (let i = 0; i < d.length; i++) {
+            const s = Math.max(-1, Math.min(1, d[i]));
+            this.buffer[this.idx++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            if (this.idx >= this.buffer.length) {
+                this.port.postMessage(this.buffer.slice(0));
+                this.idx = 0;
+            }
+        }
+        return true;
+    }
+}
+registerProcessor('pcm-processor', PCMProcessor);
+`;
+
+async function startDeepgram() {
+    if (isRecording) return;
+    micText.innerText = 'Подключение...';
+
+    try {
+        if (!workletBlobUrl) {
+            workletBlobUrl = URL.createObjectURL(new Blob([AUDIO_WORKLET_CODE], { type: 'application/javascript' }));
+        }
+        dgAudioCtx = new AudioContext({ sampleRate: 16000 });
+        await dgAudioCtx.audioWorklet.addModule(workletBlobUrl);
+
+        const micId = micSelectCall.value || micSelect.value || localStorage.getItem('preferredMic');
+        const cons = { audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: 16000 } };
+        if (micId) cons.audio.deviceId = { exact: micId };
+
+        dgMediaStream = await navigator.mediaDevices.getUserMedia(cons);
+        const src = dgAudioCtx.createMediaStreamSource(dgMediaStream);
+        dgWorkletNode = new AudioWorkletNode(dgAudioCtx, 'pcm-processor');
+        src.connect(dgWorkletNode);
+
+        // Nova-3 Multilingual: language=multi поддерживает переключение языков
+        // на лету (35+ языков, включая русский)
+        const params = new URLSearchParams({
+            model: 'nova-3',
+            language: 'multi',
+            encoding: 'linear16',
+            sample_rate: '16000',
+            smart_format: 'true',
+            punctuate: 'true',
+            interim_results: 'true',
+            endpointing: '100'
+        });
+
+        // Браузерный WebSocket не умеет ставить заголовок Authorization,
+        // поэтому Deepgram официально поддерживает передачу ключа через
+        // Sec-WebSocket-Protocol (второй аргумент конструктора WebSocket),
+        // а не через query-параметр.
+        dgWs = new WebSocket(`wss://api.deepgram.com/v1/listen?${params}`, ['token', DEEPGRAM_API_KEY]);
+        dgWs.binaryType = 'arraybuffer';
+        dgFinalBuffer = '';
+
+        dgWs.onopen = () => {
+            isRecording = true;
+            micText.innerText = 'Запись';
+            micIndicator.classList.add('active');
+            btnRecordToggle.classList.add('recording');
+            toggleText.innerText = '⏹️ Остановить запись';
+            showToast('Deepgram', 'Запись начата', 'success');
+        };
+
+        dgWs.onmessage = e => {
+            const d = JSON.parse(e.data);
+
+            if (d.type === 'Results') {
+                const transcript = d.channel?.alternatives?.[0]?.transcript || '';
+                if (!transcript) return;
+
+                if (d.is_final) {
+                    dgFinalBuffer = dgFinalBuffer ? `${dgFinalBuffer} ${transcript}` : transcript;
+                    if (d.speech_final) {
+                        handleFinalTranscript(dgFinalBuffer);
+                        dgFinalBuffer = '';
+                    } else {
+                        showInterim(dgFinalBuffer);
+                    }
+                } else {
+                    showInterim(dgFinalBuffer ? `${dgFinalBuffer} ${transcript}` : transcript);
+                }
+            } else if (d.type === 'Metadata') {
+                console.log('[DG] Session:', d.request_id);
+            } else if (d.type === 'Error' || d.error) {
+                console.error('[DG] Error:', d);
+                showError('Deepgram: ' + (d.description || d.message || JSON.stringify(d)));
+            }
+        };
+
+        dgWs.onerror = e => {
+            console.error('[DG] WS error:', e);
+            micText.innerText = 'Ошибка';
+            micIndicator.classList.remove('active');
+            btnRecordToggle.classList.remove('recording');
+            toggleText.innerText = '🎤 Начать запись';
+            isRecording = false;
+        };
+
+        dgWs.onclose = () => {
+            isRecording = false;
+            micText.innerText = 'Выкл';
+            micIndicator.classList.remove('active');
+            btnRecordToggle.classList.remove('recording');
+            toggleText.innerText = '🎤 Начать запись';
+        };
+
+        dgWorkletNode.port.onmessage = e => {
+            if (dgWs?.readyState === WebSocket.OPEN) dgWs.send(e.data.buffer);
+        };
+    } catch (e) {
+        console.error('[DG]', e);
+        micText.innerText = 'Ошибка';
+        micIndicator.classList.remove('active');
+        btnRecordToggle.classList.remove('recording');
+        toggleText.innerText = '🎤 Начать запись';
+        isRecording = false;
+        showError('Deepgram: ' + e.message);
+    }
+}
+
+async function handleFinalTranscript(text) {
+    console.log(`[DG] Final: "${text}"`);
+    showMyText(text, null);
+
+    if (conn?.open) {
+        const tr = await translateText(text, getMyLang(), getTargetLang());
+        showMyText(text, tr);
+        conn.send({ text: tr, original: text });
+    } else {
+        showError('Собеседник не подключен.');
+    }
+}
+
+function stopDeepgram() {
+    if (!isRecording) return;
+
+    if (dgWs) {
+        try {
+            if (dgWs.readyState === WebSocket.OPEN) dgWs.send(JSON.stringify({ type: 'CloseStream' }));
+            dgWs.close();
+        } catch (e) {}
+        dgWs = null;
+    }
+    if (dgWorkletNode) {
+        try { dgWorkletNode.disconnect(); } catch (e) {}
+        dgWorkletNode = null;
+    }
+    if (dgAudioCtx) {
+        try { dgAudioCtx.close(); } catch (e) {}
+        dgAudioCtx = null;
+    }
+    if (dgMediaStream) {
+        dgMediaStream.getTracks().forEach(t => t.stop());
+        dgMediaStream = null;
+    }
+
+    isRecording = false;
+    dgFinalBuffer = '';
+    micText.innerText = 'Выкл';
+    micIndicator.classList.remove('active');
+    btnRecordToggle.classList.remove('recording');
+    toggleText.innerText = '🎤 Начать запись';
+    showToast('Deepgram', 'Запись остановлена', 'info');
+}
+
+// ==================== TRANSLATION ====================
+async function translateText(text, src, tgt) {
+    try {
+        const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${tgt}`);
+        const d = await r.json();
+        return d.responseData?.translatedText || '[err]';
+    } catch (e) {
+        return '[Ошибка]';
+    }
+}
+
+// ==================== END CALL ====================
+$('btn-end').addEventListener('click', () => {
+    stopDeepgram();
+    if (conn) conn.close();
+    if (peer) peer.destroy();
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    stopCallTimer();
+    showToast('Звонок', 'Перезагрузка...', 'info');
+    setTimeout(() => location.reload(), 1000);
+});
+
+// ==================== MIC SWITCH ====================
+micSelectCall.addEventListener('change', async e => {
+    const id = e.target.value;
+    if (!id || !localStream) return;
+
+    try {
+        const ns = await navigator.mediaDevices.getUserMedia({
+            audio: { deviceId: { exact: id }, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+        });
+        const nt = ns.getAudioTracks()[0];
+        const ot = localStream.getAudioTracks()[0];
+        if (ot) { localStream.removeTrack(ot); ot.stop(); }
+        localStream.addTrack(nt);
+
+        if (currentCall?.peerConnection) {
+            const s = currentCall.peerConnection.getSenders().find(s => s.track?.kind === 'audio');
+            if (s) s.replaceTrack(nt);
+        }
+
+        localStorage.setItem('preferredMic', id);
+        showToast('Микрофон', 'Устройство изменено', 'success');
+
+        if (isRecording) {
+            stopDeepgram();
+            setTimeout(startDeepgram, 300);
+        }
+    } catch (e) {
+        showError('Микрофон: ' + e.message);
+    }
+});
+
+// ==================== LANGUAGE CHANGE ====================
+myLangSelect.addEventListener('change', () => {
+    if (isRecording) {
+        stopDeepgram();
+        setTimeout(startDeepgram, 300);
+    }
+});
+
+// ==================== VISIBILITY ====================
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && isRecording) stopDeepgram();
+});
+
+console.log('[APP] Ready');
+</script>
+</body>
+</html>
